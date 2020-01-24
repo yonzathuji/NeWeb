@@ -1,5 +1,6 @@
-import { NgModule } from '@angular/core';
+import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CesiumMapDirective } from './cesium-map.directive';
+import { CesiumMapService } from './cesium-map.service';
 
 
 
@@ -9,4 +10,11 @@ import { CesiumMapDirective } from './cesium-map.directive';
   ],
   exports: [CesiumMapDirective]
 })
-export class CesiumMapModule { }
+export class CesiumMapModule {
+  static forRoot(): ModuleWithProviders {
+    return {
+      ngModule: CesiumMapModule,
+      providers: [CesiumMapService]
+    };
+  }
+}

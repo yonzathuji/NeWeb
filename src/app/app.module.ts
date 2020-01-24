@@ -10,7 +10,7 @@ import { CesiumMapModule } from 'projects/cesium-map/src/public-api';
   ],
   imports: [
     BrowserModule,
-    CesiumMapModule
+    CesiumMapModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]
