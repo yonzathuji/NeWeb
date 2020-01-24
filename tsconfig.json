@@ -17,7 +17,15 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "cesium-map": [
+        "dist/cesium-map"
+      ],
+      "cesium-map/*": [
+        "dist/cesium-map/*"
+      ]
+    }
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,

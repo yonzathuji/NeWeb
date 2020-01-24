@@ -20,13 +20,21 @@
             "tsConfig": "tsconfig.app.json",
             "aot": false,
             "assets": [
+              {
+                "glob": "**/*",
+                "input": "./node_modules/cesium/Build/Cesium",
+                "output": "./assets/cesium"
+              },
               "src/favicon.ico",
               "src/assets"
             ],
             "styles": [
+              "./node_modules/cesium/Build/Cesium/Widgets/widgets.css",
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+              "./node_modules/cesium/Build/Cesium/Cesium.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -115,6 +123,42 @@
           }
         }
       }
-    }},
+    },
+    "cesium-map": {
+      "projectType": "library",
+      "root": "projects/cesium-map",
+      "sourceRoot": "projects/cesium-map/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/cesium-map/tsconfig.lib.json",
+            "project": "projects/cesium-map/ng-package.json",
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/cesium-map/src/test.ts",
+            "tsConfig": "projects/cesium-map/tsconfig.spec.json",
+            "karmaConfig": "projects/cesium-map/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/cesium-map/tsconfig.lib.json",
+              "projects/cesium-map/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
+    }
+  },
   "defaultProject": "NeWeb"
 }
