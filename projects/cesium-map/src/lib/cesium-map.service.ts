@@ -1,4 +1,6 @@
 import { ElementRef, Injectable, NgZone } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { skipWhile, take } from 'rxjs/operators';
 import { Location } from './models/location';
 
 @Injectable({
@@ -7,6 +9,8 @@ import { Location } from './models/location';
 export class CesiumMapService {
 
   private cesiumViewer: any;
+
+  cesiumViewerInitilized$ = new BehaviorSubject<boolean>(false);
 
   constructor(
     private zone: NgZone
@@ -59,6 +63,13 @@ export class CesiumMapService {
         }),
       });
     });
+
+    this.cesiumViewerInitilized$.next(true);
+  }
+
+  cesiumViewerInitilized(): Promise<boolean> {
+    return this.cesiumViewerInitilized$.asObservable()
+      .pipe(skipWhile(ready => !ready), take(1)).toPromise();
   }
 
   zoomIn(amount: number): void {
