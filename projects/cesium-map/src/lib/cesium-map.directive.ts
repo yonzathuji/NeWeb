@@ -1,34 +1,21 @@
-import { Directive, ElementRef, OnInit } from '@angular/core';
+import { Directive, ElementRef, Input, OnInit } from '@angular/core';
+import { CesiumMapService } from './cesium-map.service';
+import { Location } from './models/location';
 
 @Directive({
-  selector: '[libCesiumMap]'
+  selector: '[libCesiumMap]',
+  exportAs: 'libCesiumMap'
 })
 export class CesiumMapDirective implements OnInit {
-  private cesiumViewer: any;
+  @Input() initialLocation: Location;
 
-  constructor(private el: ElementRef) {
-    console.log('helolo');
+  constructor(
+    private elementRef: ElementRef,
+    private cesiumMapService: CesiumMapService) {
   }
 
   ngOnInit() {
-    this.cesiumViewer = new Cesium.Viewer(this.el.nativeElement, {
-      sceneMode: Cesium.SceneMode.SCENE2D,
-      animation: false,
-      baseLayerPicker: false,
-      fullscreenButton: false,
-      homeButton: false,
-      infoBox: false,
-      sceneModePicker: false,
-      geocoder: false,
-      timeline: false,
-      selectionIndicator: false,
-      navigationHelpButton: false,
-      navigationInstructionsInitiallyVisible: false,
-      clockViewModel: null,
-      imageryProvider: new Cesium.WebMapTileServiceImageryProvider({
-        url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer'
-      }),
-    });
+    this.cesiumMapService.initCesiumViewer(this.elementRef, this.initialLocation);
   }
 
 }
