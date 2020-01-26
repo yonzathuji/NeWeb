@@ -158,6 +158,41 @@
           }
         }
       }
+    },
+    "geocalc": {
+      "projectType": "library",
+      "root": "projects/geocalc",
+      "sourceRoot": "projects/geocalc/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/geocalc/tsconfig.lib.json",
+            "project": "projects/geocalc/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/geocalc/src/test.ts",
+            "tsConfig": "projects/geocalc/tsconfig.spec.json",
+            "karmaConfig": "projects/geocalc/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/geocalc/tsconfig.lib.json",
+              "projects/geocalc/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "NeWeb"

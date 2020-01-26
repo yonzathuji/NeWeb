@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit, HostListener } from '@angular/core';
 import { CesiumMapService, Location } from 'projects/cesium-map';
 
 @Component({
@@ -6,7 +6,8 @@ import { CesiumMapService, Location } from 'projects/cesium-map';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit {
+
   readonly INITIAL_LOCATION: Location = {
     west: 31.0,
     south: 29.0,
@@ -17,6 +18,8 @@ export class AppComponent {
   readonly MAX_ZOOM_IN = 20000;
   readonly MAX_ZOOM_OUT = 1500000;
 
-  constructor(private cesiumMapService: CesiumMapService) { }
+  constructor(private cesiumMapService: CesiumMapService) {
+  }
 
+  ngAfterViewInit(): void { }
 }

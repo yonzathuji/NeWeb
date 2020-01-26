@@ -4,6 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { skip } from 'rxjs/operators';
 import { Location } from './models/location';
 import { MapFeature } from './models/map-feature';
+import { radiansToDegrees, degreesToRadians } from 'projects/geocalc/src/lib/math';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +15,7 @@ export class CesiumMapService {
   private imageryLayers = new Map<string, ImageryLayer>();
   private maxZoomIn$ = new BehaviorSubject<number>(0);
   private maxZoomOut$ = new BehaviorSubject<number>(0);
+  private currentRotation$ = new BehaviorSubject<number>(0);
 
   constructor(
     private zone: NgZone
@@ -37,6 +39,14 @@ export class CesiumMapService {
 
   set maxZoomIn(meters: number) {
     this.maxZoomIn$.next(meters);
+  }
+
+  get currentRotation() {
+    return this.currentRotation$.value;
+  }
+
+  set currentRotation(degrees: number) {
+    this.currentRotation$.next(degrees);
   }
 
   initCesiumViewer(
@@ -64,13 +74,11 @@ export class CesiumMapService {
       });
     });
 
-    this.maxZoomIn$.pipe(
-      skip(1)
-    ).subscribe(val => this.cesiumViewer.scene.screenSpaceCameraController.minimumZoomDistance = val);
+    this.maxZoomIn$
+      .subscribe(val => this.cesiumViewer.scene.screenSpaceCameraController.minimumZoomDistance = val);
 
-    this.maxZoomOut$.pipe(
-      skip(1)
-    ).subscribe(val => this.cesiumViewer.scene.screenSpaceCameraController.maximumZoomDistance = val);
+    this.maxZoomOut$
+      .subscribe(val => this.cesiumViewer.scene.screenSpaceCameraController.maximumZoomDistance = val);
   }
 
   zoomIn(amount: number): void {
@@ -89,6 +97,16 @@ export class CesiumMapService {
     }
 
     this.cesiumViewer.camera.zoomOut(amount);
+  }
+
+  rotate(degrees: number): void {
+    this.cesiumViewer.camera.twistLeft(degreesToRadians(degrees));
+    this.currentRotation += degrees;
+  }
+
+  resetRotation(): void {
+    this.rotate(360 - this.currentRotation);
+    this.currentRotation = 0;
   }
 
   addArcGisImageryLayer(name: string, mapFeature: MapFeature): void {

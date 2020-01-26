@@ -24,6 +24,12 @@
       ],
       "cesium-map/*": [
         "dist/cesium-map/*"
+      ],
+      "geocalc": [
+        "dist/geocalc"
+      ],
+      "geocalc/*": [
+        "dist/geocalc/*"
       ]
     }
   },
