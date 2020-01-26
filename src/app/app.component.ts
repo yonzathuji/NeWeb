@@ -19,6 +19,6 @@ export class AppComponent {
   readonly MAX_ZOOM_IN = 20000;
   readonly MAX_ZOOM_OUT = 1500000;
 
-  constructor() { }
+  constructor(private cesiumMapService: CesiumMapService) { }
 
 }

@@ -2,6 +2,8 @@ import { ElementRef, Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { skipWhile, take, filter } from 'rxjs/operators';
 import { Location } from './models/location';
+import { MapFeature } from './models/map-feature';
+import { ImageryLayer } from 'cesium';
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +11,7 @@ import { Location } from './models/location';
 export class CesiumMapService {
 
   private cesiumViewer: any;
+  private imageryLayers = new Map<string, ImageryLayer>();
   private MAX_ZOOM_IN$ = new BehaviorSubject<number>(0);
   private MAX_ZOOM_OUT$ = new BehaviorSubject<number>(0);
 
@@ -58,9 +61,9 @@ export class CesiumMapService {
         navigationHelpButton: false,
         navigationInstructionsInitiallyVisible: false,
         clockViewModel: null,
-        imageryProvider: new Cesium.WebMapTileServiceImageryProvider({
-          url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer'
-        }),
+        // imageryProvider: new Cesium.WebMapTileServiceImageryProvider({
+        //   url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer'
+        // }),
       });
     });
 
@@ -71,7 +74,6 @@ export class CesiumMapService {
     this.MAX_ZOOM_OUT$.pipe(
       skipWhile(val => !val))
       .subscribe(val => this.cesiumViewer.scene.screenSpaceCameraController.maximumZoomDistance = val);
-
   }
 
   zoomIn(amount: number): void {
@@ -92,7 +94,35 @@ export class CesiumMapService {
     this.cesiumViewer.camera.zoomOut(amount);
   }
 
-  private setDefaultView(location: Location) {
+  addArcGisImageryLayer(name: string, mapFeature: MapFeature): void {
+    if (this.imageryLayers.has(name)) {
+      return;
+    }
+
+    const imageryLayer = this.cesiumViewer.imageryLayers.addImageryProvider(
+      new Cesium.ArcGisMapServerImageryProvider({
+        url: mapFeature.url, layers: mapFeature.layer
+      })
+    );
+    this.imageryLayers.set(name, imageryLayer);
+  }
+
+  removeArcGisImageryLayer(name: string): void {
+    if (!this.imageryLayers.has(name)) {
+      return;
+    }
+
+    const imageryLayer = this.imageryLayers.get(name);
+    this.cesiumViewer.imageryLayers.remove(imageryLayer);
+    this.imageryLayers.delete(name);
+  }
+
+  removeAllArcGisLayers(destroy: boolean = false): void {
+    this.imageryLayers.clear();
+    this.cesiumViewer.imageryLayers.removeAll(destroy);
+  }
+
+  private setDefaultView(location: Location): void {
     Cesium.Camera.DEFAULT_VIEW_FACTOR = 0;
     Cesium.Camera.DEFAULT_VIEW_RECTANGLE = Cesium.Rectangle.fromDegrees(
       location.west,
