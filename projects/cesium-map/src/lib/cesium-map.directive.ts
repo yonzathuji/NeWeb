@@ -9,12 +9,10 @@ import { Location } from './models/location';
 export class CesiumMapDirective implements OnInit {
   @Input() initialLocation: Location;
   @Input() set maxZoomIn(value: number) {
-    this.cesiumMapService.cesiumViewerInitilized().finally(
-      () => this.cesiumMapService.MAX_ZOOM_IN = value);
+    this.cesiumMapService.MAX_ZOOM_IN = value;
   }
   @Input() set maxZoomOut(value: number) {
-    this.cesiumMapService.cesiumViewerInitilized().finally(
-      () => this.cesiumMapService.MAX_ZOOM_OUT = value);
+    this.cesiumMapService.MAX_ZOOM_OUT = value;
   }
 
   constructor(

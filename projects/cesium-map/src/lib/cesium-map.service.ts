@@ -1,6 +1,6 @@
 import { ElementRef, Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { skipWhile, take } from 'rxjs/operators';
+import { skipWhile, take, filter } from 'rxjs/operators';
 import { Location } from './models/location';
 
 @Injectable({
@@ -9,8 +9,8 @@ import { Location } from './models/location';
 export class CesiumMapService {
 
   private cesiumViewer: any;
-
-  cesiumViewerInitilized$ = new BehaviorSubject<boolean>(false);
+  private MAX_ZOOM_IN$ = new BehaviorSubject<number>(0);
+  private MAX_ZOOM_OUT$ = new BehaviorSubject<number>(0);
 
   constructor(
     private zone: NgZone
@@ -21,19 +21,19 @@ export class CesiumMapService {
   }
 
   get MAX_ZOOM_OUT(): number {
-    return this.cesiumViewer.scene.screenSpaceCameraController.maximumZoomDistance;
+    return this.MAX_ZOOM_OUT$.value;
   }
 
   set MAX_ZOOM_OUT(meters: number) {
-    this.cesiumViewer.scene.screenSpaceCameraController.maximumZoomDistance = meters;
+    this.MAX_ZOOM_OUT$.next(meters);
   }
 
   get MAX_ZOOM_IN(): number {
-    return this.cesiumViewer.scene.screenSpaceCameraController.minimumZoomDistance;
+    return this.MAX_ZOOM_IN$.value;
   }
 
   set MAX_ZOOM_IN(meters: number) {
-    this.cesiumViewer.scene.screenSpaceCameraController.minimumZoomDistance = meters;
+    this.MAX_ZOOM_IN$.next(meters);
   }
 
   initCesiumViewer(
@@ -64,12 +64,14 @@ export class CesiumMapService {
       });
     });
 
-    this.cesiumViewerInitilized$.next(true);
-  }
+    this.MAX_ZOOM_IN$.pipe(
+      skipWhile(val => !val))
+      .subscribe(val => this.cesiumViewer.scene.screenSpaceCameraController.minimumZoomDistance = val);
 
-  cesiumViewerInitilized(): Promise<boolean> {
-    return this.cesiumViewerInitilized$.asObservable()
-      .pipe(skipWhile(ready => !ready), take(1)).toPromise();
+    this.MAX_ZOOM_OUT$.pipe(
+      skipWhile(val => !val))
+      .subscribe(val => this.cesiumViewer.scene.screenSpaceCameraController.maximumZoomDistance = val);
+
   }
 
   zoomIn(amount: number): void {
