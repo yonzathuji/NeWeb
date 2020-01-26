@@ -1,9 +1,9 @@
 import { ElementRef, Injectable, NgZone } from '@angular/core';
+import { ImageryLayer } from 'cesium';
 import { BehaviorSubject } from 'rxjs';
-import { skipWhile, take, filter } from 'rxjs/operators';
+import { skip } from 'rxjs/operators';
 import { Location } from './models/location';
 import { MapFeature } from './models/map-feature';
-import { ImageryLayer } from 'cesium';
 
 @Injectable({
   providedIn: 'root'
@@ -12,31 +12,31 @@ export class CesiumMapService {
 
   private cesiumViewer: any;
   private imageryLayers = new Map<string, ImageryLayer>();
-  private MAX_ZOOM_IN$ = new BehaviorSubject<number>(0);
-  private MAX_ZOOM_OUT$ = new BehaviorSubject<number>(0);
+  private maxZoomIn$ = new BehaviorSubject<number>(0);
+  private maxZoomOut$ = new BehaviorSubject<number>(0);
 
   constructor(
     private zone: NgZone
   ) { }
 
-  get CURRENT_ZOOM(): number {
+  get currentZoom(): number {
     return this.cesiumViewer.camera.positionCartographic.height;
   }
 
-  get MAX_ZOOM_OUT(): number {
-    return this.MAX_ZOOM_OUT$.value;
+  get maxZoomOut(): number {
+    return this.maxZoomOut$.value;
   }
 
-  set MAX_ZOOM_OUT(meters: number) {
-    this.MAX_ZOOM_OUT$.next(meters);
+  set maxZoomOut(meters: number) {
+    this.maxZoomOut$.next(meters);
   }
 
-  get MAX_ZOOM_IN(): number {
-    return this.MAX_ZOOM_IN$.value;
+  get maxZoomIn(): number {
+    return this.maxZoomIn$.value;
   }
 
-  set MAX_ZOOM_IN(meters: number) {
-    this.MAX_ZOOM_IN$.next(meters);
+  set maxZoomIn(meters: number) {
+    this.maxZoomIn$.next(meters);
   }
 
   initCesiumViewer(
@@ -60,25 +60,22 @@ export class CesiumMapService {
         selectionIndicator: false,
         navigationHelpButton: false,
         navigationInstructionsInitiallyVisible: false,
-        clockViewModel: null,
-        // imageryProvider: new Cesium.WebMapTileServiceImageryProvider({
-        //   url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer'
-        // }),
+        clockViewModel: null
       });
     });
 
-    this.MAX_ZOOM_IN$.pipe(
-      skipWhile(val => !val))
-      .subscribe(val => this.cesiumViewer.scene.screenSpaceCameraController.minimumZoomDistance = val);
+    this.maxZoomIn$.pipe(
+      skip(1)
+    ).subscribe(val => this.cesiumViewer.scene.screenSpaceCameraController.minimumZoomDistance = val);
 
-    this.MAX_ZOOM_OUT$.pipe(
-      skipWhile(val => !val))
-      .subscribe(val => this.cesiumViewer.scene.screenSpaceCameraController.maximumZoomDistance = val);
+    this.maxZoomOut$.pipe(
+      skip(1)
+    ).subscribe(val => this.cesiumViewer.scene.screenSpaceCameraController.maximumZoomDistance = val);
   }
 
   zoomIn(amount: number): void {
-    if (this.CURRENT_ZOOM + amount <= this.MAX_ZOOM_IN) {
-      this.cesiumViewer.camera.zoomIn(this.MAX_ZOOM_IN + amount);
+    if (this.currentZoom + amount <= this.maxZoomIn) {
+      this.cesiumViewer.camera.zoomIn(this.maxZoomIn + amount);
       return;
     }
 
@@ -86,8 +83,8 @@ export class CesiumMapService {
   }
 
   zoomOut(amount: number): void {
-    if (this.CURRENT_ZOOM + amount >= this.MAX_ZOOM_OUT) {
-      this.cesiumViewer.camera.zoomOut(this.MAX_ZOOM_OUT - amount);
+    if (this.currentZoom + amount >= this.maxZoomOut) {
+      this.cesiumViewer.camera.zoomOut(this.maxZoomOut - amount);
       return;
     }
 

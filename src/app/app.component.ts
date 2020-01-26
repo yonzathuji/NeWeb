@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { Location } from 'projects/cesium-map/src/lib/models/location';
-import { CesiumMapService } from 'projects/cesium-map/src/public-api';
+import { CesiumMapService, Location } from 'projects/cesium-map';
 
 @Component({
   selector: 'app-root',
@@ -8,7 +7,6 @@ import { CesiumMapService } from 'projects/cesium-map/src/public-api';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-
   readonly INITIAL_LOCATION: Location = {
     west: 31.0,
     south: 29.0,

@@ -8,20 +8,22 @@ import { Location } from './models/location';
 })
 export class CesiumMapDirective implements OnInit {
   @Input() initialLocation: Location;
+
   @Input() set maxZoomIn(value: number) {
-    this.cesiumMapService.MAX_ZOOM_IN = value;
+    this.cesiumMapService.maxZoomIn = value;
   }
+
   @Input() set maxZoomOut(value: number) {
-    this.cesiumMapService.MAX_ZOOM_OUT = value;
+    this.cesiumMapService.maxZoomOut = value;
   }
 
   constructor(
     private elementRef: ElementRef,
-    private cesiumMapService: CesiumMapService) {
+    private cesiumMapService: CesiumMapService
+  ) {
   }
 
   ngOnInit() {
     this.cesiumMapService.initCesiumViewer(this.elementRef, this.initialLocation);
   }
-
 }
