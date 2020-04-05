@@ -1,17 +1,18 @@
 import { ElementRef, Injectable, NgZone } from '@angular/core';
-import { ImageryLayer } from 'cesium';
-import { BehaviorSubject } from 'rxjs';
-import { skip } from 'rxjs/operators';
+import { ImageryLayer, Viewer } from 'cesium';
+import { degreesToRadians } from 'projects/geocalc/src/lib/math';
+import { BehaviorSubject, Subject, Observable } from 'rxjs';
 import { Location } from './models/location';
 import { MapFeature } from './models/map-feature';
-import { radiansToDegrees, degreesToRadians } from 'projects/geocalc/src/lib/math';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CesiumMapService {
 
-  private cesiumViewer: any;
+  private viewerReady$ = new Subject<void>();
+  private cesiumViewer: Viewer;
+
   private imageryLayers = new Map<string, ImageryLayer>();
   private maxZoomIn$ = new BehaviorSubject<number>(0);
   private maxZoomOut$ = new BehaviorSubject<number>(0);
@@ -20,6 +21,14 @@ export class CesiumMapService {
   constructor(
     private zone: NgZone
   ) { }
+
+  get viewer(): Viewer {
+    return this.cesiumViewer;
+  }
+
+  get viewerReady(): Observable<void> {
+    return this.viewerReady$.asObservable();
+  }
 
   get currentZoom(): number {
     return this.cesiumViewer.camera.positionCartographic.height;
@@ -73,6 +82,8 @@ export class CesiumMapService {
         clockViewModel: null
       });
     });
+
+    this.viewerReady$.next(null);
 
     this.maxZoomIn$
       .subscribe(val => this.cesiumViewer.scene.screenSpaceCameraController.minimumZoomDistance = val);
